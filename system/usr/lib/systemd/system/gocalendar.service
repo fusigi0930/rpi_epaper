@@ -1,0 +1,11 @@
+[Unit]
+Description=golang calendar application
+After=systemd-user-sessions.service
+ConditionPathExists=/usr/bin/ggcal
+
+[Service]
+User=root
+ExecStart=/usr/bin/ggcal
+
+[Install]
+WantedBy=multi-user.target
