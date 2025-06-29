@@ -76,7 +76,7 @@ func main() {
 		log.LogService().Errorf("init virtual windows failed: %v\n", err)
 	}
 
-	go func() {
+	//go func() {
 		if err := disp.LoadDef("layout.yaml", nil); err != nil {
 			log.LogService().Errorf("no!!!! %v\n", err)
 		}
@@ -87,7 +87,7 @@ func main() {
 
 		disp.GetRootScreen().Draw()
 
-	}()
+	//}()
 	disp.EventLoop()
 
 	disp.CloseWin()

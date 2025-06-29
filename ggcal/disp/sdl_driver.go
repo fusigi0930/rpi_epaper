@@ -1,4 +1,4 @@
-// go:build !rpi && disp_test
+//go:build !rpi
 
 package disp
 

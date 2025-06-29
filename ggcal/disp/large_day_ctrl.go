@@ -5,6 +5,7 @@ import(
 	"errors"
 	"strconv"
 	"strings"
+	"fmt"
 	"image/color"
 
 	"ggcal/log"
@@ -171,12 +172,22 @@ func (obj *GLargeDayControl) UpdateParam(params map[string] string) {
 
 	ft, ok := params["font"]
 	if ok {
-		obj.SetFont(ft, size)
+		path := GlobalSetting("fontpath")
+		f := ft
+		if len(path) != 0 {
+			f = fmt.Sprintf("%s/%s", path, ft)
+		}
+		obj.SetFont(f, size)
 	}
 
 	df, ok := params["day_font"]
 	if ok {
-		obj.DayFontPath = df
+		path := GlobalSetting("fontpath")
+		if len(path) == 0 {
+			obj.DayFontPath = df
+		} else {
+			obj.DayFontPath = fmt.Sprintf("%s/%s", path, df)
+		}
 	}
 	dfs, ok := params["day_fontsize"]
 	if ok {
@@ -186,7 +197,12 @@ func (obj *GLargeDayControl) UpdateParam(params map[string] string) {
 
 	ef, ok := params["event_font"]
 	if ok {
-		obj.EventFontPath = ef
+		path := GlobalSetting("fontpath")
+		if len(path) == 0 {
+			obj.EventFontPath = ef
+		} else {
+			obj.EventFontPath = fmt.Sprintf("%s/%s", path, ef)
+		}
 	}
 	efs, ok := params["event_fontsize"]
 	if ok {

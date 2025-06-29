@@ -15,9 +15,20 @@ import(
 )
 
 var gRoot *GObject
+var gMapLayoutGlobal map[string]string
+
+func GlobalSetting(key string) string {
+	v, ok := gMapLayoutGlobal[key]
+	if ok {
+		return v
+	}
+	return ""
+}
 
 func LoadDef(file string, ext_sc *SurfaceContext) error {
 	var fullname string
+	gMapLayoutGlobal = make(map[string]string)
+
 	switch runtime.GOOS {
 	case "windows":
 		sysdata_path := fmt.Sprintf("%s/ggcal", os.Getenv("ProgramData"))
@@ -46,16 +57,34 @@ func LoadDef(file string, ext_sc *SurfaceContext) error {
 		return err
 	}
 
+	var screen_node *yaml.Node = &yaml.Node{}
+	screen_node.Content = append(screen_node.Content, &yaml.Node{})
+	for i := 0; i < len(rootNode.Content[0].Content); i += 2 {
+		log.LogService().Debugf("rootname: %s\n", rootNode.Content[0].Content[i].Value)
+		switch(rootNode.Content[0].Content[i].Value) {
+		case "Screen":
+			screen_node.Content[0].Content =
+				append(screen_node.Content[0].Content, rootNode.Content[0].Content[i])
+				screen_node.Content[0].Content =
+				append(screen_node.Content[0].Content, rootNode.Content[0].Content[i+1])
+		case "fontpath":
+			log.LogService().Debugf("fontpath is: %s\n", rootNode.Content[0].Content[i+1].Value)
+			gMapLayoutGlobal["fontpath"] = rootNode.Content[0].Content[i+1].Value
+		}
+	}
+
 	gRoot = &GObject{SC: nil, Parent: nil}
-	yamlToControl(rootNode.Content[0], gRoot)
+	yamlToControl(screen_node.Content[0], gRoot)
 	var sc *SurfaceContext
 	if ext_sc == nil {
+		log.LogService().Debugf("initial new surface...\n")
 		sc = NewSurface(gRoot.GetWidth(), gRoot.GetHeight())
+		log.LogService().Debugf("completed new surface...\n")
 	} else {
 		sc = ext_sc
 	}
 	defineSC(gRoot, sc)
-	gRoot.DumpParam("")
+	//gRoot.DumpParam("")
 
 	if err := cal.LoadDef("calconfig.yaml"); err != nil {
 		log.LogService().Errorf("no!!!!!!!: %v\n", err)
@@ -86,6 +115,7 @@ func yamlToControl(ynode *yaml.Node, node GBase) (error) {
 	}
 	for _, child := range childs.Content {
 		var childNode GBase
+		log.LogService().Debugf("parsing %s node\n", child.Content[0].Value)
 		switch (child.Content[0].Value) {
 		case "Rect":
 			childNode = &GRectControl{}

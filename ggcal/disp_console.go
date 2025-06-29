@@ -71,13 +71,16 @@ func updateCalendar() {
 func main() {
 	log.InitLog("ggcal.log")
 	log.LogService().Printf("initial log service...\n")
+	//sc := disp.NewSurface(1304, 984)
+
 
 	err := disp.InitWin(1304, 984)
 	if err != nil {
 		log.LogService().Errorf("init virtual windows failed: %v\n", err)
 	}
 
-	go func() {
+
+	//go func() {
 		if err := disp.LoadDef("layout.yaml", nil); err != nil {
 			log.LogService().Errorf("no!!!! %v\n", err)
 		}
@@ -86,9 +89,10 @@ func main() {
 		updateTitle()
 		updateLargeDays()
 
-		disp.GetRootScreen().Draw()
+		
 
-	}()
+	//}()
+	disp.GetRootScreen().Draw()
 	disp.SDLEventLoop()
 
 	disp.CloseWin()

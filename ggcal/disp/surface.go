@@ -31,6 +31,8 @@ type SurfaceContext struct {
 	canvas	*image.RGBA
 }
 
+var gFonts map[string]*TTFFont
+
 func NewSurface(w int, h int) *SurfaceContext {
 	log.LogService().Infoln("create new surface")
 	c := image.NewRGBA(image.Rect(0, 0, w, h))
@@ -170,10 +172,21 @@ func (sc *SurfaceContext) DrawImage(x int, y int, file string) {
 }
 
 func (sc *SurfaceContext) LoadFont(file string, size float64, dpi float64) (*TTFFont, error) {
+	//log.LogService().Debugf("loading font...\n")
+	if gFonts == nil {
+		gFonts = make(map[string]*TTFFont)
+	}
+
 	_, err := os.Stat(file)
 	if errors.Is(err, os.ErrNotExist) {
 		log.LogService().Errorf("the file %s is not exist\n", file)
 		return nil, fmt.Errorf("file %s is not exist\n", file)
+	}
+
+	key := fmt.Sprintf("%s,%d,%d", file, int(size), int(dpi))
+	loaded_font, ok := gFonts[key]
+	if ok {
+		return loaded_font, nil
 	}
 
 	fontByte, err := ioutil.ReadFile(file)
@@ -198,7 +211,11 @@ func (sc *SurfaceContext) LoadFont(file string, size float64, dpi float64) (*TTF
 		return nil, fmt.Errorf("create ttf face failed\n")
 	}
 
-	return &TTFFont{Face: face, Size: size, Path: file}, nil
+	newload_font := &TTFFont{Face: face, Size: size, Path: file}
+	gFonts[key] = newload_font
+
+	//log.LogService().Debugf("loaded font...\n")
+	return newload_font, nil
 }
 
 func (sc *SurfaceContext) CloseFont(ttf *TTFFont) {

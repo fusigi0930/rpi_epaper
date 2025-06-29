@@ -186,7 +186,12 @@ func (obj *GCalGridControl) UpdateParam(params map[string] string) {
 
 	wdf, ok := params["weekday_font"]
 	if ok {
-		obj.WeekDayFontPath = wdf
+		path := GlobalSetting("fontpath")
+		if len(path) == 0 {
+			obj.WeekDayFontPath = wdf
+		} else {
+			obj.WeekDayFontPath = fmt.Sprintf("%s/%s", path, wdf)
+		}
 	}
 	wdfs, ok := params["weekday_fontsize"]
 	if ok {
@@ -196,7 +201,12 @@ func (obj *GCalGridControl) UpdateParam(params map[string] string) {
 
 	df, ok := params["day_font"]
 	if ok {
-		obj.DayFontPath = df
+		path := GlobalSetting("fontpath")
+		if len(path) == 0 {
+			obj.DayFontPath = df
+		} else {
+			obj.DayFontPath = fmt.Sprintf("%s/%s", path, df)
+		}
 	}
 	dfs, ok := params["day_fontsize"]
 	if ok {
@@ -205,7 +215,12 @@ func (obj *GCalGridControl) UpdateParam(params map[string] string) {
 
 	ef, ok := params["event_font"]
 	if ok {
-		obj.EventFontPath = ef
+		path := GlobalSetting("fontpath")
+		if len(path) == 0 {
+			obj.EventFontPath = ef
+		} else {
+			obj.EventFontPath = fmt.Sprintf("%s/%s", path, ef)
+		}
 	}
 	efs, ok := params["event_fontsize"]
 	if ok {

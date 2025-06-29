@@ -6,6 +6,7 @@ import(
 	"errors"
 	"strconv"
 	"strings"
+	"fmt"
 
 	"ggcal/log"
 )
@@ -178,7 +179,12 @@ func (obj *GTextControl) UpdateParam(params map[string] string) {
 
 	ft, ok := params["font"]
 	if ok {
-		obj.SetFont(ft, size)
+		path := GlobalSetting("fontpath")
+		f := ft
+		if len(path) != 0 {
+			f = fmt.Sprintf("%s/%s", path, ft)
+		}
+		obj.SetFont(f, size)
 	}
 
 	uniid, ok := params["id"]
