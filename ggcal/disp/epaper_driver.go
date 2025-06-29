@@ -22,9 +22,13 @@ var gQuit bool = false
 var gWidth int = 0
 var gHeight int = 0
 
-func EventLoop() {
-	fmt.Printf("comming soon")
+func EventLoop(drawSignal <-chan struct{}) {
 	for !gQuit {
+		select {
+		case <-drawSignal:
+			GetRootScreen().Draw()
+		default:
+		}
 		//gVirtRender.Present()
 		time.Sleep(100 * time.Millisecond)
 	}

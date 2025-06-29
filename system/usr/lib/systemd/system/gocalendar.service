@@ -1,6 +1,6 @@
 [Unit]
 Description=golang calendar application
-After=systemd-user-sessions.service
+After=network.target
 ConditionPathExists=/usr/bin/ggcal
 
 [Service]

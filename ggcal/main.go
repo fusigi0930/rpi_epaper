@@ -5,6 +5,8 @@ package main
 import(
 	"fmt"
 	"time"
+	"os"
+	"sync"
 
 	"ggcal/log"
 	"ggcal/cal"
@@ -67,28 +69,99 @@ func updateCalendar() {
 	}
 }
 
+func getNextDuration() time.Duration {
+	targetHours := []int{0, 6, 9, 12, 15, 18, 21}
+	now := time.Now()
+	var nextRun time.Time
+
+	for _, hour := range targetHours {
+		potentialNextRun := time.Date(now.Year(), now.Month(), now.Day(), hour, 0, 0, 0, now.Location())
+		if potentialNextRun.After(now) {
+			nextRun = potentialNextRun
+			break
+		}
+	}
+
+	if nextRun.IsZero() {
+		tomorrow := now.Add(24 * time.Hour)
+		nextRun = time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), targetHours[0], 0, 0, 0, now.Location())
+	}
+
+	log.LogService().Infof("next update: %s will run %s\n", nextRun.Sub(now).Round(time.Second), nextRun.Format("2006-01-02 15:04:05"))
+	return nextRun.Sub(now)
+}
+
+func runSchedule(drawSignal chan<- struct{}) {
+	var wg sync.WaitGroup
+	for {
+		duration := getNextDuration()
+		timer := time.NewTimer(duration)
+		<-timer.C
+		wg.Add(3)
+		go func() {
+			updateCalendar()
+			wg.Done()
+		}()
+		go func() {
+			updateTitle()
+			wg.Done()
+		}()
+		go func() {
+			updateLargeDays()
+			wg.Done()
+		}()
+		wg.Wait()
+		drawSignal <- struct{}{}
+	}
+}
+
+
 func main() {
 	log.InitLog("ggcal.log")
 	log.LogService().Printf("initial log service...\n")
 
-	err := disp.InitWin(1304, 984)
-	if err != nil {
-		log.LogService().Errorf("init virtual windows failed: %v\n", err)
-	}
+	var mWg sync.WaitGroup
 
-	//go func() {
+	mWg.Add(1)
+	go func() {
 		if err := disp.LoadDef("layout.yaml", nil); err != nil {
 			log.LogService().Errorf("no!!!! %v\n", err)
 		}
+		mWg.Done()
+	}()
 
+	log.LogService().Infof("initial display windows in the other thread\n")
+	err := disp.InitWin(1304, 984)
+	if err != nil {
+		log.LogService().Errorf("init virtual windows failed: %v\n", err)
+		os.Exit(1)
+	}
+
+	mWg.Wait()
+
+	mWg.Add(3)
+	go func() {
 		updateCalendar()
+		mWg.Done()
+	}()
+	go func() {
 		updateTitle()
+		mWg.Done()
+	}()
+	go func() {
 		updateLargeDays()
+		mWg.Done()
+	}()
+	
+	mWg.Wait()
+	log.LogService().Infof("update window\n")
+	disp.GetRootScreen().Draw()
 
-		disp.GetRootScreen().Draw()
+	drawSignal := make(chan struct{}, 1)
+	go runSchedule(drawSignal)
 
-	//}()
-	disp.EventLoop()
+	disp.EventLoop(drawSignal)
 
+	log.LogService().Infof("ready for closing window\n")
 	disp.CloseWin()
 }

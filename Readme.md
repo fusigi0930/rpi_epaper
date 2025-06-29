@@ -42,3 +42,40 @@ mingw: https://github.com/libsdl-org/SDL/releases/download/release-2.32.8/SDL2-d
 vc: https://github.com/libsdl-org/SDL/releases/download/release-2.32.8/SDL2-devel-2.32.8-VC.zip
 
 
+## Calendar go project
+the calendar is implemented by using golang, and it support a windows/linux virtual window to simulate the screen on the e-paper, that means you can build on the windows/linux system and do some UI adjustment, then cross build the raspberrypi version on the linux system.
+
+### Environment
+
+* go language 1.24 and laters
+* cmake 3.16 and laters
+* gcc, make utilities, ...(if the windows system, the mingw-w64 is necessary)
+* ninja (for windows only, that avoids the cmake to use visual studio)
+
+the urls for windows:
+golang: https://go.dev/doc/install
+cmake: https://cmake.org/download/
+gcc: https://www.msys2.org/
+
+on ubuntu linux, you can directly get the package by the commands
+```shell
+sudo apt update
+sudo apt install cmake gcc g++ gcc-multilib g++-multilib make
+```
+
+### Create Google Cloud Console key
+store it to the specific path
+* windows: %ProgramData%\ggcal\
+* linux/rpi: /etc/ggcal/
+TBD
+
+### Add the new service to your calender access list
+TDB
+
+### Copy layout definition file to config path
+* windows: %ProgramData%\ggcal\
+* linux/rpi: /etc/ggcal/
+TBD
+
+### Fonts
+download the free TTF font from google (https://fonts.google.com/noto/specimen/Noto+Sans+TC), copy the font files to the path you want after decompress it. the path is up to you, and don't forget modify the fontpath in the layout.yaml file

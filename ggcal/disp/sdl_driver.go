@@ -20,7 +20,8 @@ var gQuit bool = false
 var gWidth int = 0
 var gHeight int = 0
 
-func SDLEventLoop() {
+func EventLoop(drawSignal <-chan struct{}) {
+	log.LogService().Infof("start event loop\n")
 	if gVirtRender == nil {
 		log.LogService().Infof("wait for quit loop %v, %v\n", gVirtRender, gVirtWin)
 		if gWg != nil {
@@ -39,13 +40,14 @@ func SDLEventLoop() {
 			}
 		}
 
+		select {
+		case <-drawSignal:
+			GetRootScreen().Draw()
+		default:
+		}
 		//gVirtRender.Present()
 		sdl.Delay(1000 / 20)
 	}
-}
-
-func EventLoop() {
-	SDLEventLoop()
 }
 
 func InitWin(w int, h int) error {

@@ -93,7 +93,8 @@ func main() {
 
 	//}()
 	disp.GetRootScreen().Draw()
-	disp.SDLEventLoop()
+	drawSignal := make(chan struct{}, 1)
+	disp.EventLoop(drawSignal)
 
 	disp.CloseWin()
 }
