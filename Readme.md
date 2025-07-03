@@ -64,18 +64,31 @@ sudo apt install cmake gcc g++ gcc-multilib g++-multilib make
 ```
 
 ### Create Google Cloud Console key
-store it to the specific path
+1. we need to create a Google service account to access a specific Google Calendar (usually your own). Therefore, you should create the service account by following the steps provided at https://cloud.google.com/iam/docs/service-accounts-create.
+2. open your google calendar on the browser and add the service account to the "Share" 
+3. create and export the key from the account service and store the json to the path
+
 * windows: %ProgramData%\ggcal\
 * linux/rpi: /etc/ggcal/
-TBD
 
-### Add the new service to your calender access list
-TDB
+4. create a config yaml file on the same path with the name "calconfig.yaml", and update the filename for the key on the document.
+e.g.
+```yaml
+cred_file: "xxxxx_service.json"
+holiday_cal: "zh.taiwan#holiday@group.v.calendar.google.com"
+calendar:
+ - "your_google_calendar_id@gmail.com"
+```
 
-### Copy layout definition file to config path
+### layout definition file
+in the source code, a default layout file "layout.yaml" it should be copied to the path after run the script setup_zero2w.sh, you can adjust some configuration from it in need.
+
 * windows: %ProgramData%\ggcal\
 * linux/rpi: /etc/ggcal/
-TBD
 
 ### Fonts
 download the free TTF font from google (https://fonts.google.com/noto/specimen/Noto+Sans+TC), copy the font files to the path you want after decompress it. the path is up to you, and don't forget modify the fontpath in the layout.yaml file
+
+```yaml
+fontpath: "..."
+```

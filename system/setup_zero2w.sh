@@ -30,12 +30,14 @@ if [ ! -f temp/etc/inited ]; then
 	sudo rm temp/etc/systemd/system/multi-user.target.wants/avahi-daemon.service
 	sudo rm temp/etc/systemd/system/dbus-org.freedesktop.Avahi.service
 	sudo rm temp/etc/systemd/system/sockets.target.wants/avahi-daemon.socket
+	sudo rm temp/etc/systemd/system/multi-user.target.wants/qdbd.service
+	sudo rm temp/etc/systemd/system/multi-user.target.wants/containerd.service
 
 	# enable timesync service
 	sudo ln -sf /usr/share/zoneinfo/Asia/Taipei temp/etc/localtime
 	sudo ln -s /usr/lib/systemd/system/systemd-timesyncd.service temp/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service
 	sudo ln -s /usr/lib/systemd/system/systemd-timesyncd.service temp/etc/systemd/system/dbus-org.freedesktop.timesync1.service
-	
+	sudo ln -s /usr/lib/systemd/system/gocalendar.service temp/etc/systemd/system/multi-user.target.wants/gocalendar.service
 
 	# use wpa_supplicant and dhcp service to instead connman.service
 	sudo rm temp/etc/systemd/system/multi-user.target.wants/connman.service
