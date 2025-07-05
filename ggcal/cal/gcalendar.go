@@ -282,15 +282,32 @@ func GetEvents(service *calendar.Service, date string) map[string]string {
 
 	es := make(map[string]string, 0)
 	for _, e := range events.Items {
-	
-		t, _ := time.Parse("2006-01-02T15:04:05-07:00", e.Start.DateTime)
-		date := t.Format("2006-01-02")
-		el, ok := es[date]
+		if e.Start.DateTime == "" {
+			startt, _ := time.Parse("2006-01-02", e.Start.Date)
+			endt, _ := time.Parse("2006-01-02", e.End.Date)
+			t := startt
+			for t.Before(endt) {
+				date := t.Format("2006-01-02")
+				el, ok := es[date]
 
-		if !ok {
-			es[date] = fmt.Sprintf("%s %s", t.Format("15:04"), e.Summary)
-		} else {
-			es[date] = fmt.Sprintf("%s\n%s %s", el, t.Format("15:04"), e.Summary)
+				if !ok {
+					es[date] = fmt.Sprintf("%s", e.Summary)
+				} else {
+					es[date] = fmt.Sprintf("%s\n%s", el, e.Summary)
+				}
+				t = t.Add(24 * time.Hour)
+			}
+		}
+		if e.Start.DateTime != "" {
+			t, _ := time.Parse("2006-01-02T15:04:05-07:00", e.Start.DateTime)
+			date := t.Format("2006-01-02")
+			el, ok := es[date]
+
+			if !ok {
+				es[date] = fmt.Sprintf("%s %s", t.Format("15:04"), e.Summary)
+			} else {
+				es[date] = fmt.Sprintf("%s\n%s %s", el, t.Format("15:04"), e.Summary)
+			}
 		}
 	}
 
@@ -325,14 +342,32 @@ func GetDaysEvents(service *calendar.Service, date string, days int) map[string]
 		}
 
 		for _, e := range events.Items {	
-			t, _ := time.Parse("2006-01-02T15:04:05-07:00", e.Start.DateTime)
-			date := t.Format("2006-01-02")
-			log.LogService().Debugf("**** %s-%s\n", date, e.Summary)
-			el, ok := es[date]
-			if !ok {
-				es[date] = fmt.Sprintf("%s%s %s", prefix[i], t.Format("15:04"), e.Summary)
-			} else {
-				es[date] = fmt.Sprintf("%s\n%s%s %s", el, prefix[i], t.Format("15:04"), e.Summary)
+			if e.Start.DateTime == "" {
+				startt, _ := time.Parse("2006-01-02", e.Start.Date)
+				endt, _ := time.Parse("2006-01-02", e.End.Date)
+				t := startt
+				for t.Before(endt) {
+					date := t.Format("2006-01-02")
+					el, ok := es[date]
+
+					if !ok {
+						es[date] = fmt.Sprintf("%s", e.Summary)
+					} else {
+						es[date] = fmt.Sprintf("%s\n%s", el, e.Summary)
+					}
+					t = t.Add(24 * time.Hour)
+				}
+			}
+			if e.Start.DateTime != "" {
+				t, _ := time.Parse("2006-01-02T15:04:05-07:00", e.Start.DateTime)
+				date := t.Format("2006-01-02")
+				log.LogService().Debugf("**** %s-%s\n", date, e.Summary)
+				el, ok := es[date]
+				if !ok {
+					es[date] = fmt.Sprintf("%s%s %s", prefix[i], t.Format("15:04"), e.Summary)
+				} else {
+					es[date] = fmt.Sprintf("%s\n%s%s %s", el, prefix[i], t.Format("15:04"), e.Summary)
+				}
 			}
 		}
 	}
